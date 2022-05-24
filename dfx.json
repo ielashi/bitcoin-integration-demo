@@ -1,0 +1,32 @@
+{
+  "version": 1,
+  "dfx": "0.9.3",
+  "canisters": {
+    "btc_test": {
+      "type": "rust",
+      "package": "btc_test",
+      "candid": "src/btc_test/btc_test.did"
+    },
+    "btc_test_assets": {
+      "type": "assets",
+      "source": [
+        "src/btc_test_assets/assets"
+      ],
+      "dependencies": [
+        "btc_test"
+      ]
+    }
+  },
+  "defaults": {
+    "build": {
+      "packtool": "",
+      "args": ""
+    }
+  },
+  "networks": {
+    "local": {
+      "bind": "127.0.0.1:8000",
+      "type": "ephemeral"
+    }
+  }
+}
