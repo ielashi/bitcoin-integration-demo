@@ -6,7 +6,9 @@ This demo is already deployed to the IC, so you can already try it yourself. Exa
 
 ```
 dfx canister --network=ic call bitcoin_integration_demo get_balance '("tb1qsgx55dp6gn53tsmyjjv4c2ye403hgxynxs0dnm")'
+```
 
+```
 dfx canister --network=ic call bitcoin_integration_demo get_utxos '("tb1qc7psdze9j0r38rv8gj2kl8gysqevtqyqs20upw")'
 ```
 
