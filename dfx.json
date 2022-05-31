@@ -1,20 +1,11 @@
 {
   "version": 1,
-  "dfx": "0.9.3",
+  "dfx": "0.10.0",
   "canisters": {
-    "btc_test": {
+    "bitcoin_integration_demo": {
       "type": "rust",
-      "package": "btc_test",
-      "candid": "src/btc_test/btc_test.did"
-    },
-    "btc_test_assets": {
-      "type": "assets",
-      "source": [
-        "src/btc_test_assets/assets"
-      ],
-      "dependencies": [
-        "btc_test"
-      ]
+      "package": "bitcoin_integration_demo",
+      "candid": "src/bitcoin_integration_demo/bitcoin_integration_demo.did"
     }
   },
   "defaults": {

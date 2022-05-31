@@ -1,37 +1,16 @@
-# btc_test
+# Bitcoin Integration Demo
 
-Welcome to your new btc_test project and to the internet computer development community. By default, creating a new project adds this README and some template files to your project directory. You can edit these template files to customize your project and to include your own code to speed up the development cycle.
+A demo of the `bitcoin_get_balance` and `bitcoin_get_utxos` endpoints.
 
-To get started, you might want to explore the project directory structure and the default configuration file. Working with this project in your development environment will not affect any production deployment or identity tokens.
+This demo is already deployed to the IC, so you can already try it yourself. Examples:
 
-To learn more before you start working with btc_test, see the following documentation available online:
+```
+dfx canister --network=ic call bitcoin_integration_demo get_balance '("tb1qsgx55dp6gn53tsmyjjv4c2ye403hgxynxs0dnm")'
 
-- [Quick Start](https://smartcontracts.org/docs/quickstart/quickstart-intro.html)
-- [SDK Developer Tools](https://smartcontracts.org/docs/developers-guide/sdk-guide.html)
-- [Rust Canister Devlopment Guide](https://smartcontracts.org/docs/rust-guide/rust-intro.html)
-- [ic-cdk](https://docs.rs/ic-cdk)
-- [ic-cdk-macros](https://docs.rs/ic-cdk-macros)
-- [Candid Introduction](https://smartcontracts.org/docs/candid-guide/candid-intro.html)
-- [JavaScript API Reference](https://erxue-5aaaa-aaaab-qaagq-cai.raw.ic0.app)
-
-If you want to start working on your project right away, you might want to try the following commands:
-
-```bash
-cd btc_test/
-dfx help
-dfx config --help
+dfx canister --network=ic call bitcoin_integration_demo get_utxos '("tb1qc7psdze9j0r38rv8gj2kl8gysqevtqyqs20upw")'
 ```
 
-## Running the project locally
+Note that, at the time of this writing, when calling `get_utxos` with thousands of UTXOs, one may
+get a "Payload too large" error. This is an error that will be rectified in a future replica
+upgrade.
 
-If you want to test your project locally, you can use the following commands:
-
-```bash
-# Starts the replica, running in the background
-dfx start --background
-
-# Deploys your canisters to the replica and generates your candid interface
-dfx deploy
-```
-
-Once the job completes, your application will be available at `http://localhost:8000?canisterId={asset_canister_id}`.
