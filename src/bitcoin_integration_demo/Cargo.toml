@@ -9,8 +9,10 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
+hex = "0.4.3"
+bitcoin = "0.27.1"
 candid = "0.7.4"
-ic-btc-types = { git = "https://github.com/dfinity/ic", rev = "92d22cd998ae2ba64e9c66cffdb6b55c76b8ce22" }
+ic-btc-types = { git = "https://github.com/dfinity/ic", rev = "cf2ad26ab0f54beb36ac902412e863e46929626a" }
 ic-cdk = "0.5.1"
 ic-cdk-macros = "0.5.1"
 serde = "1.0.132"

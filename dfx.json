@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "dfx": "0.10.0",
+  "dfx": "0.10.2-btcbeta.0",
   "canisters": {
     "bitcoin_integration_demo": {
       "type": "rust",
