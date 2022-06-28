@@ -1,4 +1,5 @@
-use crate::sha256;
+use crate::util::sha256;
+use crate::types::*;
 use bitcoin::{
     blockdata::script::Builder,
     hashes::Hash,
@@ -18,10 +19,10 @@ use std::str::FromStr;
 // The signature hash type that is always used.
 const SIG_HASH_TYPE: SigHashType = SigHashType::All;
 
-pub fn get_p2pkh_address(private_key: &PrivateKey, network: Network) -> Address {
+/*pub fn get_p2pkh_address(private_key: &PrivateKey, network: Network) -> Address {
     let public_key = private_key.public_key(&Secp256k1::new());
     Address::p2pkh(&public_key, network)
-}
+}*/
 
 // Builds a transaction that sends the given `amount` of satoshis to the `destination` address.
 pub fn build_transaction(
@@ -119,14 +120,14 @@ pub async fn sign_transaction(
         //print(&format!("sighash (unhashed): {:?}", sighash.to_vec()));
        // print(&format!("sighash: {:?}", sha256(sighash.to_vec())));
 
-        let res: (crate::SignWithECDSAReply,) = call(
+        let res: (SignWithECDSAReply,) = call(
             ecdsa_canister_id,
             "sign_with_ecdsa",
             (crate::SignWithECDSA {
                 message_hash: sighash.to_vec(),
                 derivation_path: vec![vec![0]],
-                key_id: crate::EcdsaKeyId {
-                    curve: crate::EcdsaCurve::Secp256k1,
+                key_id: EcdsaKeyId {
+                    curve: EcdsaCurve::Secp256k1,
                     name: String::from("test"),
                 },
             },),

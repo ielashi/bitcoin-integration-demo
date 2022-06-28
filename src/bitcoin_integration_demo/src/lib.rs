@@ -1,6 +1,7 @@
 mod common;
 mod types;
-use crate::common::get_p2pkh_address;
+mod util;
+use types::*;
 use bitcoin::{util::psbt::serialize::Serialize as _, Address, PrivateKey};
 use hex;
 use ic_btc_types::{
@@ -21,92 +22,20 @@ use sha2::Digest;
 use std::cell::RefCell;
 use std::str::FromStr;
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-struct X {
-    public_key: Vec<u8>,
-    chain_code: Vec<u8>,
-}
 
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-struct EcdsaKeyId {
-    pub curve: EcdsaCurve,
-    pub name: String,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-pub enum EcdsaCurve {
-    #[serde(rename = "secp256k1")]
-    Secp256k1,
-}
-
-#[derive(CandidType, Deserialize, Debug)]
-struct SignWithECDSAReply {
-    pub signature: Vec<u8>,
-}
-
-#[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
-struct ECDSAPublicKey {
-    pub canister_id: Option<Principal>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: EcdsaKeyId,
-}
-
-#[derive(CandidType, Serialize, Debug)]
-struct SignWithECDSA {
-    pub message_hash: Vec<u8>,
-    pub derivation_path: Vec<Vec<u8>>,
-    pub key_id: EcdsaKeyId,
-}
-
-// TODO: cache the address.
 #[update]
-async fn get_address() -> String {
-    let ecdsa_canister_id = Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap();
-
-    #[allow(clippy::type_complexity)]
-    let res: (X,) = call(
-        ecdsa_canister_id,
-        "ecdsa_public_key",
-        (ECDSAPublicKey {
-            canister_id: None,
-            derivation_path: vec![vec![0]],
-            key_id: EcdsaKeyId {
-                curve: EcdsaCurve::Secp256k1,
-                name: String::from("test"),
-            },
-        },),
-    )
-    .await
-    .unwrap();
-    print(format!(
-        "Public Key {:?}",
-        hex::encode(res.0.public_key.clone())
-    ));
-
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(res.0.public_key));
-    let result = hasher.finalize();
-
-    // mainnet: 0x00, testnet: 0x6f
-    let mut data_with_prefix = vec![0x6f];
-    data_with_prefix.extend(result);
-
-    //let data_with_prefix_b58 = bs58::encode(data_with_prefix);
-    // TODO: get rid of clone?
-    let checksum = &sha256(sha256(data_with_prefix.clone()))[..4];
-
-    let mut full_address = data_with_prefix;
-    full_address.extend(checksum);
-
-    bs58::encode(full_address).into_string()
+async fn get_p2pkh_address() -> String {
+    let public_key = get_public_key().await;
+    print(format!("Public Key {:?}", hex::encode(public_key.clone())));
+    crate::util::p2pkh_address_from_public_key(public_key)
 }
 
+#[update]
 async fn get_public_key() -> Vec<u8> {
     let ecdsa_canister_id = Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap();
 
     #[allow(clippy::type_complexity)]
-    let res: (X,) = call(
+    let res: (ECDSAPublicKeyReply,) = call(
         ecdsa_canister_id,
         "ecdsa_public_key",
         (ECDSAPublicKey {
@@ -120,25 +49,9 @@ async fn get_public_key() -> Vec<u8> {
     )
     .await
     .unwrap();
-    print(format!(
-        "Public Key {:?}",
-        hex::encode(res.0.public_key.clone())
-    ));
 
     res.0.public_key
 }
-
-fn sha256(data: Vec<u8>) -> Vec<u8> {
-    let mut hasher = sha2::Sha256::new();
-    hasher.update(data);
-    hasher.finalize().to_vec()
-}
-
-/*
-#[query(name = "btc_address")]
-pub fn btc_address_str() -> String {
-    btc_address().to_string()
-}*/
 
 #[update]
 async fn get_balance(address: String) -> u64 {
@@ -150,7 +63,7 @@ async fn get_balance(address: String) -> u64 {
             network: Network::Regtest,
             min_confirmations: None,
         },),
-        100_000_000
+        100_000_000,
     )
     .await;
 
@@ -183,7 +96,7 @@ async fn send_transaction(transaction: Vec<u8>) {
             network: Network::Regtest,
             transaction,
         },),
-        1_000_000_000_000
+        1_000_000_000_000,
     )
     .await;
 
@@ -204,7 +117,7 @@ pub async fn send(destination: String) {
         Err(_) => trap("Invalid destination address"),
     };
 
-    let our_address = get_address().await;
+    let our_address = get_p2pkh_address().await;
 
     print(&format!("BTC address: {}", our_address));
 
