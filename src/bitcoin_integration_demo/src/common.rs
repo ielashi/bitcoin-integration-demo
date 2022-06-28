@@ -99,7 +99,6 @@ pub fn build_transaction(
 /// * `src_address` is a P2PKH address.
 pub async fn sign_transaction(
     mut transaction: Transaction,
-    private_key: PrivateKey,
     src_address: Address,
     public_key: Vec<u8>,
 ) -> Transaction {
@@ -117,8 +116,8 @@ pub async fn sign_transaction(
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
         let ecdsa_canister_id = Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap();
 
-        print(&format!("sighash (unhashed): {:?}", sighash.to_vec()));
-        print(&format!("sighash: {:?}", sha256(sighash.to_vec())));
+        //print(&format!("sighash (unhashed): {:?}", sighash.to_vec()));
+       // print(&format!("sighash: {:?}", sha256(sighash.to_vec())));
 
         let res: (crate::SignWithECDSAReply,) = call(
             ecdsa_canister_id,
@@ -136,39 +135,38 @@ pub async fn sign_transaction(
         .unwrap();
 
         //        let ecdsa_canister_signature = hex::decode("1c9aabcf9e65ad4af9c969ed9bba7e3ffab93ce4ab7fd62a1a758ead06c4e878272b3c795bbe87b6d08ebfaecb6b482a7c2a4fb021e0ec431939e2b06336e1ae").unwrap();
-        /*println!(
-            "ECDSA canister signature: {:?}",
-            hex::encode(&ecdsa_canister_signature)
-        );
 
-        println!("ECDSA length: {}", ecdsa_canister_signature.len());*/
+//        println!("ECDSA length: {}", ecdsa_canister_signature.len());*/
 
         let signature = res.0.signature;
+        /*print(format!(
+            "ECDSA canister signature: {:?}",
+            hex::encode(&signature)
+        ));*/
         let r: Vec<u8> = if signature[0] & 0x80 != 0 {
-            print("R is negative");
+            //print("R is negative");
             // r is negative. Prepend a zero byte.
             let mut tmp = vec![0x00];
             tmp.extend(signature[..32].to_vec());
             tmp
             //signature[..32].to_vec()
         } else {
-            print("R is positive");
+            //print("R is positive");
             signature[..32].to_vec()
         };
 
         let s: Vec<u8> = if signature[32] & 0x80 != 0 {
-            print("S is negative");
+            //print("S is negative");
             // NOTE: this case doesn't work yet. We either prepend a 0x00 byte
             // and get an error that the value of S is "unnecessarily high".
             // Or we don't append and we get an error that the signature is
             // "non-canonical"
             // s is negative. Prepend a zero byte.
-//            let mut tmp = vec![0x00];
- //           tmp.extend(signature[32..].to_vec());
-  //          tmp
-            signature[32..].to_vec()
+            let mut tmp = vec![0x00];
+            tmp.extend(signature[32..].to_vec());
+            tmp
         } else {
-            print("S is positive");
+            //print("S is positive");
             signature[32..].to_vec()
         };
 
@@ -183,12 +181,12 @@ pub async fn sign_transaction(
         .flatten()
         .collect();
 
-        print(&format!(
+        /*print(&format!(
             "DER signature: {:?}",
             hex::encode(der_signature.clone())
         ));
 
-        print(&format!("DER signature raw: {:?}", der_signature.clone()));
+        print(&format!("DER signature raw: {:?}", der_signature.clone()));*/
 
         /*let signature = secp.sign(
             &Message::from_slice(&sighash[..]).unwrap(),
@@ -286,7 +284,7 @@ fn test_sign_transaction() {
         };
 
         let spending_transaction =
-            sign_transaction(spending_transaction, private_key, address.clone(), vec![]).await;
+            sign_transaction(spending_transaction, address.clone(), vec![]).await;
 
         use bitcoin::util::psbt::serialize::Serialize;
         println!(

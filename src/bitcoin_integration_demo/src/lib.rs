@@ -21,16 +21,6 @@ use sha2::Digest;
 use std::cell::RefCell;
 use std::str::FromStr;
 
-// A private key in WIF (wallet import format). This is only for demonstrational purposes.
-// When the Bitcoin integration is released on mainnet, canisters will have the ability
-// to securely generate ECDSA keys.
-const BTC_PRIVATE_KEY_WIF: &str = "L2C1QgyKqNgfV7BpEPAm6PVn2xW8zpXq6MojSbWdH18nGQF2wGsT";
-
-thread_local! {
-    static BTC_PRIVATE_KEY: RefCell<PrivateKey> =
-        RefCell::new(PrivateKey::from_wif(BTC_PRIVATE_KEY_WIF).unwrap());
-}
-
 #[derive(CandidType, Serialize, Deserialize, Debug, Clone)]
 struct X {
     public_key: Vec<u8>,
@@ -236,10 +226,8 @@ pub async fn send(destination: String) {
     print(&format!("Transaction to sign: {}", hex::encode(tx_bytes)));
 
     // Sign transaction
-    let private_key = BTC_PRIVATE_KEY.with(|private_key| *private_key.borrow());
     let signed_transaction = crate::common::sign_transaction(
         spending_transaction,
-        private_key,
         Address::from_str(&our_address).unwrap(),
         get_public_key().await,
     )
@@ -255,9 +243,4 @@ pub async fn send(destination: String) {
 
     send_transaction(signed_transaction_bytes).await;
     print("Done");
-}
-
-fn btc_address() -> Address {
-    BTC_PRIVATE_KEY
-        .with(|private_key| get_p2pkh_address(&private_key.borrow(), bitcoin::Network::Regtest))
 }
