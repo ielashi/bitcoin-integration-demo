@@ -1,27 +1,14 @@
 mod common;
 mod types;
 mod util;
-use types::*;
-use bitcoin::{util::psbt::serialize::Serialize as _, Address, PrivateKey};
-use hex;
+use bitcoin::{util::psbt::serialize::Serialize as _, Address};
 use ic_btc_types::{
     GetBalanceRequest, GetUtxosRequest, GetUtxosResponse, Network, SendTransactionRequest,
 };
-use ic_cdk::{
-    api::call::RejectionCode,
-    call,
-    export::{
-        candid::{CandidType, Deserialize},
-        serde::Serialize,
-        Principal,
-    },
-    print, trap,
-};
-use ic_cdk_macros::{query, update};
-use sha2::Digest;
-use std::cell::RefCell;
+use ic_cdk::{call, export::Principal, print, trap};
+use ic_cdk_macros::update;
 use std::str::FromStr;
-
+use types::*;
 
 #[update]
 async fn get_p2pkh_address() -> String {

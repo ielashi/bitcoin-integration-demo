@@ -1,28 +1,19 @@
-use crate::util::sha256;
 use crate::types::*;
 use bitcoin::{
     blockdata::script::Builder,
     hashes::Hash,
-    secp256k1::{Message, Secp256k1},
-    Address, AddressType, Network, OutPoint, PrivateKey, Script, SigHashType, Transaction, TxIn,
+    Address, AddressType, OutPoint, Script, SigHashType, Transaction, TxIn,
     TxOut, Txid,
 };
 use ic_btc_types::Utxo;
 use ic_cdk::{
     call,
-    export::{candid::CandidType, Principal},
+    export::{Principal},
     print,
 };
-use sha2::Digest;
-use std::str::FromStr;
 
 // The signature hash type that is always used.
 const SIG_HASH_TYPE: SigHashType = SigHashType::All;
-
-/*pub fn get_p2pkh_address(private_key: &PrivateKey, network: Network) -> Address {
-    let public_key = private_key.public_key(&Secp256k1::new());
-    Address::p2pkh(&public_key, network)
-}*/
 
 // Builds a transaction that sends the given `amount` of satoshis to the `destination` address.
 pub fn build_transaction(
@@ -51,7 +42,7 @@ pub fn build_transaction(
     print(&format!("UTXOs to spend: {:?}", utxos_to_spend));
     print(&format!(
         "UTXO transaction id: {}",
-        Txid::from_hash(Hash::from_slice(&utxos_to_spend[0].outpoint.txid).unwrap()).to_string(),
+        Txid::from_hash(Hash::from_slice(&utxos_to_spend[0].outpoint.txid).unwrap()),
     ));
 
     if total_spent < amount {
@@ -109,16 +100,12 @@ pub async fn sign_transaction(
         _ => panic!("This demo supports signing p2pkh addresses only."),
     };
 
-    let secp = Secp256k1::new();
     let txclone = transaction.clone();
 
     for (index, input) in transaction.input.iter_mut().enumerate() {
         let sighash =
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
         let ecdsa_canister_id = Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap();
-
-        //print(&format!("sighash (unhashed): {:?}", sighash.to_vec()));
-       // print(&format!("sighash: {:?}", sha256(sighash.to_vec())));
 
         let res: (SignWithECDSAReply,) = call(
             ecdsa_canister_id,
@@ -137,8 +124,7 @@ pub async fn sign_transaction(
 
         //        let ecdsa_canister_signature = hex::decode("1c9aabcf9e65ad4af9c969ed9bba7e3ffab93ce4ab7fd62a1a758ead06c4e878272b3c795bbe87b6d08ebfaecb6b482a7c2a4fb021e0ec431939e2b06336e1ae").unwrap();
 
-//        println!("ECDSA length: {}", ecdsa_canister_signature.len());*/
-
+        //        println!("ECDSA length: {}", ecdsa_canister_signature.len());*/
         let signature = res.0.signature;
         /*print(format!(
             "ECDSA canister signature: {:?}",
@@ -223,26 +209,6 @@ pub async fn sign_transaction(
     }
 
     transaction
-}
-
-fn get_address_from_public_key(public_key: Vec<u8>) -> String {
-    // sha256 + ripmd160
-    let mut hasher = ripemd::Ripemd160::new();
-    hasher.update(sha256(public_key));
-    let result = hasher.finalize();
-
-    // mainnet: 0x00, testnet: 0x6f
-    let mut data_with_prefix = vec![0x6f];
-    data_with_prefix.extend(result);
-
-    //let data_with_prefix_b58 = bs58::encode(data_with_prefix);
-    // TODO: get rid of clone?
-    let checksum = &sha256(sha256(data_with_prefix.clone()))[..4];
-
-    let mut full_address = data_with_prefix;
-    full_address.extend(checksum);
-
-    bs58::encode(full_address).into_string()
 }
 
 #[test]
