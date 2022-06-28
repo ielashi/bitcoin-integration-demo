@@ -13,6 +13,9 @@ use types::*;
 const GET_BALANCE_COST_CYCLES: u64 = 100_000_000;
 const GET_UTXOS_COST_CYCLES: u64 = 100_000_000;
 
+// TODO: should this be an env variable?
+const NETWORK: Network = Network::Regtest;
+
 /// Returns the public key of this canister at derivation path [0].
 #[update]
 async fn get_public_key() -> Vec<u8> {
@@ -56,7 +59,7 @@ async fn get_balance(address: String) -> u64 {
         "bitcoin_get_balance",
         (GetBalanceRequest {
             address,
-            network: Network::Regtest,
+            network: NETWORK,
             min_confirmations: None,
         },),
         GET_BALANCE_COST_CYCLES,
@@ -78,7 +81,7 @@ async fn get_utxos(address: String) -> GetUtxosResponse {
         "bitcoin_get_utxos",
         (GetUtxosRequest {
             address,
-            network: Network::Regtest,
+            network: NETWORK,
             filter: None,
         },),
         GET_UTXOS_COST_CYCLES,
@@ -94,7 +97,7 @@ async fn send_transaction(transaction: Vec<u8>) {
         Principal::management_canister(),
         "bitcoin_send_transaction",
         (SendTransactionRequest {
-            network: Network::Regtest,
+            network: NETWORK,
             transaction,
         },),
         1_000_000_000_000,
