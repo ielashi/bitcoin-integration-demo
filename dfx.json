@@ -6,6 +6,12 @@
       "type": "rust",
       "package": "bitcoin_integration_demo",
       "candid": "src/bitcoin_integration_demo/bitcoin_integration_demo.did"
+    },
+    "ecdsa": {
+      "type": "custom",
+      "package": "ecdsa",
+      "candid": "ecdsa.did",
+      "wasm": "ecdsa.wasm"
     }
   },
   "defaults": {
