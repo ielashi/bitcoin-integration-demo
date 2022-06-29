@@ -105,7 +105,7 @@ pub async fn sign_transaction(
     for (index, input) in transaction.input.iter_mut().enumerate() {
         let sighash =
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
-        let ecdsa_canister_id = Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap();
+        let ecdsa_canister_id = Principal::from_text("rno2w-sqaaa-aaaaa-aaacq-cai").unwrap();
 
         let res: (SignWithECDSAReply,) = call(
             ecdsa_canister_id,

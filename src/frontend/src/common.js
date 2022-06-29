@@ -1,14 +1,12 @@
-import { Actor, HttpAgent } from "@dfinity/agent";
-import { AuthClient } from "@dfinity/auth-client";
+import { Actor, AnonymousIdentity, HttpAgent } from "@dfinity/agent";
 
 const webapp_id = process.env.BITCOIN_WALLET_CANISTER_ID;
 
 // The interface of the Bitcoin wallet canister.
 const webapp_idl = ({ IDL }) => {
   return IDL.Service({
-    whoami: IDL.Func([], [IDL.Principal], ["query"]),
-    get_principal_address_str: IDL.Func([], [IDL.Text], ["update"]),
-    get_balance: IDL.Func([], [IDL.Nat64], ["update"])
+    get_balance: IDL.Func([IDL.Text], [IDL.Nat64], ["update"]),
+    get_p2pkh_address: IDL.Func([], [IDL.Text], ["update"])
   });
 };
 
@@ -43,24 +41,15 @@ export function redirectToLogin() {
 
 // Returns an actor that we use to call the servie methods.
 export async function getWebApp() {
-  const authClient = await AuthClient.create();
-  // At this point we're authenticated, and we can get the identity from the auth client:
-  const identity = authClient.getIdentity();
   // Using the identity obtained from the auth client, we can create an agent to interact with the IC.
-  const agent = new HttpAgent({ identity });
-  if(process.env.DFX_NETWORK === "local")
+  const agent = new HttpAgent({ identity: new AnonymousIdentity() });
+  if(process.env.DFX_NETWORK === "local") {
     await agent.fetchRootKey();
+  }
+
   // Using the interface description of our webapp, we create an actor that we use to call the service methods.
   return Actor.createActor(webapp_idl, {
     agent,
     canisterId: webapp_id,
   });
-}
-
-// Redirects the user to the login webpage if the user isn't authenticated.
-export async function redirectToLoginIfUnauthenticated(webapp) {
-  const whoAmI = await webapp.whoami();
-  if (whoAmI.isAnonymous()) {
-    redirectToLogin();
-  }
 }

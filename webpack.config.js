@@ -81,7 +81,7 @@ module.exports = {
     }),
 
     new webpack.EnvironmentPlugin({
-      //BITCOIN_WALLET_CANISTER_ID: process.env.BITCOIN_WALLET_CANISTER_ID,
+      BITCOIN_WALLET_CANISTER_ID: "rrkah-fqaaa-aaaaa-aaaaq-cai", //process.env.BITCOIN_WALLET_CANISTER_ID,
       DFX_NETWORK: process.env.DFX_NETWORK || "local",
     }),
     new webpack.ProvidePlugin({

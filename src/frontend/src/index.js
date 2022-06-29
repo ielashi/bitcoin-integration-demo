@@ -4,11 +4,14 @@ import { iiUrl, getWebApp, redirectToDashboard } from './common.js';
 window.onload = async () => {
   const webapp = await getWebApp();
   // Call whoami which returns the principal (user id) of the current user.
-  const whoAmI = await webapp.whoami();
-  // If the user is already authenticated, then he is redirected to the dashboard webpage.
-  if (!whoAmI.isAnonymous()) {
-      redirectToDashboard();
-  }
+  console.log("bitcoin balance");
+  const balance = await webapp.get_balance("n11zzHb2iaKTQUCo4Nxm4GvB33Sn2YintG");
+  console.log(balance);
+  document.getElementById("balance").innerText = Number(balance) / (10 ** 8);
+
+  const address = await webapp.get_p2pkh_address();
+  console.log(address);
+  document.getElementById("address").innerText = address;
 };
 
 // When the user clicks the "Login" button, we start the login process.

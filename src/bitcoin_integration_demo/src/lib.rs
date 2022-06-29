@@ -19,7 +19,7 @@ const NETWORK: Network = Network::Regtest;
 /// Returns the public key of this canister at derivation path [0].
 #[update]
 async fn get_public_key() -> Vec<u8> {
-    let ecdsa_canister_id = Principal::from_text("rwlgt-iiaaa-aaaaa-aaaaa-cai").unwrap();
+    let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap();
 
     #[allow(clippy::type_complexity)]
     let res: (ECDSAPublicKeyReply,) = call(

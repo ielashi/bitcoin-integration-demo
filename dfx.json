@@ -3,9 +3,11 @@
   "dfx": "0.10.2-btcbeta.0",
   "canisters": {
     "bitcoin_integration_demo": {
-      "type": "rust",
+      "type": "custom",
       "package": "bitcoin_integration_demo",
-      "candid": "src/bitcoin_integration_demo/bitcoin_integration_demo.did"
+      "candid": "src/bitcoin_integration_demo/bitcoin_integration_demo.did",
+      "wasm": "target/wasm32-unknown-unknown/release/bitcoin_integration_demo.wasm",
+      "build": "src/bitcoin_integration_demo/build.sh"
     },
     "bitcoin_wallet_assets": {
       "type": "assets",
