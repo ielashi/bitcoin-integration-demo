@@ -27,7 +27,11 @@ type get_utxos_response = record {
   next_page: opt blob;
 };
 
+type page = blob;
+
 service : {
     "get_balance": (bitcoin_address) -> (satoshi);
-    "get_utxos": (bitcoin_address) -> (get_utxos_response);
+    "get_utxos": (bitcoin_address, opt page) -> (get_utxos_response);
+    "send_transaction": (blob) -> ();
+    "get_current_fee_percentiles": () -> (vec nat64);
 }

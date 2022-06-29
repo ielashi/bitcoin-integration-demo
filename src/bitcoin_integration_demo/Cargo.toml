@@ -10,7 +10,7 @@ crate-type = ["cdylib"]
 
 [dependencies]
 candid = "0.7.4"
-ic-btc-types = { git = "https://github.com/dfinity/ic", rev = "92d22cd998ae2ba64e9c66cffdb6b55c76b8ce22" }
+ic-btc-types = { git = "https://github.com/dfinity/ic", rev = "0546cc21bc9260b934e93a2beccd669b5f292ff4" }
 ic-cdk = "0.5.1"
 ic-cdk-macros = "0.5.1"
 serde = "1.0.132"
