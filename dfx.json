@@ -9,18 +9,6 @@
       "wasm": "target/wasm32-unknown-unknown/release/bitcoin_integration_demo.wasm",
       "build": "src/bitcoin_integration_demo/build.sh"
     },
-    "bitcoin_wallet_assets": {
-      "type": "assets",
-      "dependencies": [
-        "bitcoin_integration_demo"
-      ],
-      "frontend": {
-        "entrypoint": "dist/frontend/src/index.html"
-      },
-      "source": [
-        "./dist/frontend/"
-      ]
-    },
     "ecdsa": {
       "type": "custom",
       "package": "ecdsa",
