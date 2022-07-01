@@ -30,7 +30,7 @@ pub fn build_transaction(
     // even if they were previously spent in a transaction.
     let mut utxos_to_spend = vec![];
     let mut total_spent = 0;
-    for utxo in utxos.into_iter() {
+    for utxo in utxos.into_iter().rev() {
         total_spent += utxo.value;
         utxos_to_spend.push(utxo);
         if total_spent >= amount + fees {
@@ -105,7 +105,7 @@ pub async fn sign_transaction(
     for (index, input) in transaction.input.iter_mut().enumerate() {
         let sighash =
             txclone.signature_hash(index, &src_address.script_pubkey(), SIG_HASH_TYPE.as_u32());
-        let ecdsa_canister_id = Principal::from_text("rno2w-sqaaa-aaaaa-aaacq-cai").unwrap();
+        let ecdsa_canister_id = Principal::from_text("r7inp-6aaaa-aaaaa-aaabq-cai").unwrap();
 
         let res: (SignWithECDSAReply,) = call(
             ecdsa_canister_id,

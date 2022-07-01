@@ -108,8 +108,7 @@ async fn send_transaction(transaction: Vec<u8>) {
 }
 
 #[update]
-pub async fn send(destination: String) {
-    let amount = 1_0000_0000;
+pub async fn send(destination: String, amount: u64) {
     let fees: u64 = 10_000;
 
     if amount <= fees {

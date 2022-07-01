@@ -45,7 +45,7 @@ function initCanisterIds() {
 initCanisterIds();
 
 // These are the webpages of the website.
-const files = ["index", "dashboard", "receive"];
+const files = ["index", "dashboard"];
 
 function get_src_path(file) {
   return path.join(__dirname, path.join("src", "frontend", "src", file));

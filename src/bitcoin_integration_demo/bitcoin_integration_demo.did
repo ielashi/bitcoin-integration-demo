@@ -28,6 +28,8 @@ type get_utxos_response = record {
 };
 
 service : {
+    "get_p2pkh_address": () -> (bitcoin_address);
     "get_balance": (bitcoin_address) -> (satoshi);
     "get_utxos": (bitcoin_address) -> (get_utxos_response);
+    "send": (bitcoin_address, nat64) -> ();
 }
