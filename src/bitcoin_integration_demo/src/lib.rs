@@ -5,7 +5,7 @@ use bitcoin::{util::psbt::serialize::Serialize as _, Address};
 use ic_btc_types::{
     GetBalanceRequest, GetUtxosRequest, GetUtxosResponse, Network, SendTransactionRequest,
 };
-use ic_cdk::{api::call::call_with_payment, call, export::Principal, print, trap};
+use ic_cdk::{api::call::call_with_payment, call, export::Principal, print, trap, export::candid::{CandidType, Deserialize}};
 use ic_cdk_macros::update;
 use std::str::FromStr;
 use types::*;
@@ -107,8 +107,16 @@ async fn send_transaction(transaction: Vec<u8>) {
     res.unwrap();
 }
 
+#[derive(CandidType, Deserialize)]
+pub struct SendRequest {
+    destination_address: String,
+    amount_in_satoshi: u64
+}
+
 #[update]
-pub async fn send(destination: String, amount: u64) {
+pub async fn send(request: SendRequest) {
+    let amount = request.amount_in_satoshi;
+    let destination = request.destination_address;
     let fees: u64 = 10_000;
 
     if amount <= fees {

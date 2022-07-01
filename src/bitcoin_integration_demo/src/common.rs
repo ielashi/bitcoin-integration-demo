@@ -122,38 +122,24 @@ pub async fn sign_transaction(
         .await
         .unwrap();
 
-        //        let ecdsa_canister_signature = hex::decode("1c9aabcf9e65ad4af9c969ed9bba7e3ffab93ce4ab7fd62a1a758ead06c4e878272b3c795bbe87b6d08ebfaecb6b482a7c2a4fb021e0ec431939e2b06336e1ae").unwrap();
-
-        //        println!("ECDSA length: {}", ecdsa_canister_signature.len());*/
         let signature = res.0.signature;
-        /*print(format!(
-            "ECDSA canister signature: {:?}",
-            hex::encode(&signature)
-        ));*/
         let r: Vec<u8> = if signature[0] & 0x80 != 0 {
-            //print("R is negative");
             // r is negative. Prepend a zero byte.
             let mut tmp = vec![0x00];
             tmp.extend(signature[..32].to_vec());
             tmp
-            //signature[..32].to_vec()
         } else {
-            //print("R is positive");
+            // r is positive.
             signature[..32].to_vec()
         };
 
         let s: Vec<u8> = if signature[32] & 0x80 != 0 {
-            //print("S is negative");
-            // NOTE: this case doesn't work yet. We either prepend a 0x00 byte
-            // and get an error that the value of S is "unnecessarily high".
-            // Or we don't append and we get an error that the signature is
-            // "non-canonical"
             // s is negative. Prepend a zero byte.
             let mut tmp = vec![0x00];
             tmp.extend(signature[32..].to_vec());
             tmp
         } else {
-            //print("S is positive");
+            // s is positive.
             signature[32..].to_vec()
         };
 
@@ -168,28 +154,6 @@ pub async fn sign_transaction(
         .flatten()
         .collect();
 
-        /*print(&format!(
-            "DER signature: {:?}",
-            hex::encode(der_signature.clone())
-        ));
-
-        print(&format!("DER signature raw: {:?}", der_signature.clone()));*/
-
-        /*let signature = secp.sign(
-            &Message::from_slice(&sighash[..]).unwrap(),
-            &private_key.key,
-        );*/
-
-        /*print(&format!(
-            "Signature from library: {:?}",
-            signature
-        ));
-        print(&format!(
-            "Der: {:?}",
-            hex::encode(signature.serialize_der())
-        ));*/
-        //let signature = signature.serialize_der();
-
         let mut sig_with_hashtype = der_signature;
         sig_with_hashtype.push(SIG_HASH_TYPE.as_u32() as u8);
         input.script_sig = Builder::new()
@@ -197,15 +161,6 @@ pub async fn sign_transaction(
             .push_slice(public_key.as_slice())
             .into_script();
         input.witness.clear();
-
-        /*let public_key = private_key.public_key(&Secp256k1::new()).to_bytes();
-        let mut sig_with_hashtype = signature.to_vec();
-        sig_with_hashtype.push(SIG_HASH_TYPE.as_u32() as u8);
-        input.script_sig = Builder::new()
-            .push_slice(sig_with_hashtype.as_slice())
-            .push_slice(public_key.as_slice())
-            .into_script();
-        input.witness.clear();*/
     }
 
     transaction
