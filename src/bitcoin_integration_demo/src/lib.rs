@@ -10,8 +10,8 @@ const B: u64 = 1_000_000_000; // One billion
 
 // Fees for the various bitcoin endpoints.
 const GET_BALANCE_FEE: u64 = 100 * M;
-const GET_UTXOS_FEE: u64 = 100 * M;
-const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 100 * M;
+const GET_UTXOS_FEE: u64 = 10 * B;
+const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 10 * M;
 const SEND_TRANSACTION_BASE_FEE: u64 = 5 * B;
 const SEND_TRANSACTION_FEE_PER_BYTE: u64 = 20 * M;
 
