@@ -1,6 +1,7 @@
-use ic_btc_types::{
+use ic_btc_interface::{
     GetBalanceRequest, GetCurrentFeePercentilesRequest, GetUtxosRequest, GetUtxosResponse,
-    MillisatoshiPerByte, Network, Page, SendTransactionRequest, UtxosFilter,
+    MillisatoshiPerByte, NetworkInRequest as Network, Page, SendTransactionRequest,
+    UtxosFilterInRequest,
 };
 use ic_cdk::{api::call::call_with_payment, export::Principal};
 use ic_cdk_macros::update;
@@ -11,18 +12,18 @@ const B: u64 = 1_000_000_000; // One billion
 // Fees for the various bitcoin endpoints.
 const GET_BALANCE_FEE: u64 = 100 * M;
 const GET_UTXOS_FEE: u64 = 10 * B;
-const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 10 * M;
+const GET_CURRENT_FEE_PERCENTILES_FEE: u64 = 100 * M;
 const SEND_TRANSACTION_BASE_FEE: u64 = 5 * B;
 const SEND_TRANSACTION_FEE_PER_BYTE: u64 = 20 * M;
 
 #[update]
-async fn get_balance(address: String) -> u64 {
+async fn get_balance(network: Network, address: String) -> u64 {
     let balance_res: Result<(u64,), _> = call_with_payment(
         Principal::management_canister(),
         "bitcoin_get_balance",
         (GetBalanceRequest {
             address,
-            network: Network::Testnet,
+            network,
             min_confirmations: None,
         },),
         GET_BALANCE_FEE,
@@ -33,14 +34,14 @@ async fn get_balance(address: String) -> u64 {
 }
 
 #[update]
-async fn get_utxos(address: String, page: Option<Page>) -> GetUtxosResponse {
+async fn get_utxos(network: Network, address: String, page: Option<Page>) -> GetUtxosResponse {
     let utxos_res: Result<(GetUtxosResponse,), _> = call_with_payment(
         Principal::management_canister(),
         "bitcoin_get_utxos",
         (GetUtxosRequest {
             address,
-            network: Network::Testnet,
-            filter: page.map(UtxosFilter::Page),
+            network,
+            filter: page.map(UtxosFilterInRequest::Page),
         },),
         GET_UTXOS_FEE,
     )
@@ -50,13 +51,11 @@ async fn get_utxos(address: String, page: Option<Page>) -> GetUtxosResponse {
 }
 
 #[update]
-async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
+async fn get_current_fee_percentiles(network: Network) -> Vec<MillisatoshiPerByte> {
     let res: Result<(Vec<MillisatoshiPerByte>,), _> = call_with_payment(
         Principal::management_canister(),
         "bitcoin_get_current_fee_percentiles",
-        (GetCurrentFeePercentilesRequest {
-            network: Network::Testnet,
-        },),
+        (GetCurrentFeePercentilesRequest { network },),
         GET_CURRENT_FEE_PERCENTILES_FEE,
     )
     .await;
@@ -65,7 +64,7 @@ async fn get_current_fee_percentiles() -> Vec<MillisatoshiPerByte> {
 }
 
 #[update]
-async fn send_transaction(transaction: Vec<u8>) {
+async fn send_transaction(network: Network, transaction: Vec<u8>) {
     // A crude check so that we don't spend too many cycles.
     if transaction.len() > 1000 {
         panic!("Transaction too large.");
@@ -78,7 +77,7 @@ async fn send_transaction(transaction: Vec<u8>) {
         Principal::management_canister(),
         "bitcoin_send_transaction",
         (SendTransactionRequest {
-            network: Network::Testnet,
+            network,
             transaction,
         },),
         fee,

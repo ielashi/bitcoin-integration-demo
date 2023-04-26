@@ -1,6 +1,6 @@
 type satoshi = nat64;
 
-type bitcoin_network = variant {
+type network = variant {
   mainnet;
   testnet;
 };
@@ -30,8 +30,8 @@ type get_utxos_response = record {
 type page = blob;
 
 service : {
-    "get_balance": (bitcoin_address) -> (satoshi);
-    "get_utxos": (bitcoin_address, opt page) -> (get_utxos_response);
-    "send_transaction": (blob) -> ();
-    "get_current_fee_percentiles": () -> (vec nat64);
+    "get_balance": (network, bitcoin_address) -> (satoshi);
+    "get_utxos": (network, bitcoin_address, opt page) -> (get_utxos_response);
+    "send_transaction": (network, blob) -> ();
+    "get_current_fee_percentiles": (network) -> (vec nat64);
 }
